@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+      <head>
+            <title>PPM Teams Submit</title>
+      </head>
+      <body>
+            <form action="/submit" method="POST">
+                  <label for="ppm">Choose a PPM:</label>
+                  <select id="ppm" name="ppm">
+                        {%for ppm in ppms%}
+                              <option value="{{ppm}}">{{ppm}}</option>
+                        {%endfor%}
+                  </select>
+                  <br>
+                  <label for="fname">Name:</label>
+                  <select id="fname" name="fname">
+                        {%for name in names%}
+                              <option value="{{name}}">{{name}}</option>
+                        {%endfor%}
+                  </select>
+                  <br>
+                  <label for="time">Time:</label>
+                  <input type="text" id="time" name="time">
+                  <br>
+                  <label for="distance">How Far did you Go:</label>
+                  <select id="distance" name="distance">
+                        {%for distance in distances%}
+                              {%if distance == defaultdistance%}
+                                    <option value="{{distance}}" selected>{{distance}}</option>
+                              {%else%}
+                                    <option value="{{distance}}">{{distance}}</option>
+                              {%endif%}
+                        {%endfor%}
+                  </select>
+                  <br>
+                  <input type="submit" name="" value="Submit">
+                  {%if failed == realfailed%}
+                        <br>
+                        <font color="red"> {{failed}} </font>
+                  {%endif%}
+                  {%if failed2 == realfailed2%}
+                        <br>
+                        <font color="red"> {{failed2}} </font>
+                  {%endif%}
+            </form>
+      </body>
+</html>

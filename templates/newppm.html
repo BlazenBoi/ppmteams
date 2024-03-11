@@ -1,0 +1,35 @@
+<form class="form-horizontal" action="/newppm" method="POST">
+    <fieldset>
+        <!-- Text input-->
+        <div class="form-group">
+        <label class="col-md-4 control-label" for="ppmname">PPM Name</label>  
+        <div class="col-md-4">
+        <input id="ppmname" name="ppmname" type="text" placeholder="PPM Name" class="form-control input-md">
+        </div>
+        </div>
+        
+        <!-- Text input-->
+        <div class="form-group">
+        <label class="col-md-4 control-label" for="ppmdate">PPM Date</label>  
+        <div class="col-md-4">
+        <input id="ppmdate" name="ppmdate" type="date" placeholder="placeholder" class="form-control input-md">
+        </div>
+        </div>
+        
+        <!-- Select Basic -->
+        <div class="form-group">
+        <label class="col-md-4 control-label" for="ppmtype">PPM Type</label>
+        <div class="col-md-4">
+            <select id="ppmtype" name="ppmtype" class="form-control">
+            <option value="None">Select a Type</option>
+            <option value="SPPM">SPPM</option>
+            <option value="LPPM">LPPM</option>
+            </select>
+        </div>
+        </div>
+
+        <br>
+
+        <button type="submit">Submit</button>
+</form>
+    

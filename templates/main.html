@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+
+      <head>
+            <title>PPM Teams</title>
+            <style>
+                  ul {
+                    list-style-type: none;
+                    margin: 0;
+                    padding: 0;
+                    overflow: hidden;
+                    border: 1px solid #e7e7e7;
+                    background-color: #f3f3f3;
+                  }
+                  
+                  li {
+                    float: left;
+                  }
+                  
+                  li a {
+                    display: block;
+                    color: #666;
+                    text-align: center;
+                    padding: 14px 16px;
+                    text-decoration: none;
+                  }
+                  
+                  li a:hover:not(.active) {
+                    background-color: #ddd;
+                  }
+                  
+                  li a.active {
+                    color: white;
+                    background-color: #04AA6D;
+                  }
+                  </style>
+      </head>
+            
+      <body>
+            <ul>
+                  {%for ppm in oppms%}
+                        {%if ppm.ppm == "Show All"%}
+                              {%if ppm.active == "true"%}
+                                    <li><a class="active" href="/">{{ppm.ppm}}</a></li>
+                              {%endif%}
+                              {%if ppm.active == "false"%}
+                                    <li><a class="inactive" href="/">{{ppm.ppm}}</a></li>
+                              {%endif%}
+                        {%endif%}
+                        {%if ppm.ppm != "Show All"%}
+                              {%if ppm.active == "true"%}
+                                    <li><a class="active" href="{{ppm.ppm}}">{{ppm.ppm}}</a></li>
+                              {%endif%}
+                              {%if ppm.active == "false"%}
+                                    <li><a class="inactive" href="{{ppm.ppm}}">{{ppm.ppm}}</a></li>
+                              {%endif%}
+                        {%endif%}
+                  {%endfor%}
+            </ul>
+            <br>
+            <br>
+            {%for ppm in ppms%}
+                  {{ppm.ppm}}
+                  <br>
+                  <br>
+                  <table border = "1">
+                        <tr>
+                              <td>Placement</td>
+                              <td>Runner</td>
+                              <td>Time</td>
+                              <td>Team</td>
+                        </tr>
+                        {%for runner in ppm.runners%}
+
+                              {%if runner.team == "Pickles"%}
+                              <tr bgcolor="green">
+                              {%endif%}
+                              {%if runner.team == "Monkeys"%}
+                              <tr bgcolor="yellow">
+                              {%endif%}
+                              {%if runner.team == "Peaches"%}
+                              <tr bgcolor="orange">
+                              {%endif%}
+                                    <td>{{runner.place}}</td>
+                                    <td>{{runner.name}}</td>
+                                    <td>{{runner.conversionstr}}</td>
+                                    <td>{{runner.team}}</td>
+                              </tr>
+                        {%endfor%}
+                  </table>
+                  
+                  {%for team in ppm.placements%}
+                        <br>
+                        {%if team.allin == "false"%}
+                              {{team.team}} - {{team.score}} - <font color="red"> {{team.runners}} Runners In... </font>
+                        {%endif%}
+                        {%if team.allin == "true"%}
+                              {{team.team}} - {{team.score}}
+                        {%endif%}
+                  {%endfor%}
+                  <br>
+                  <br>
+                  <br>
+            {%endfor%}
+   </body>
+</html>
