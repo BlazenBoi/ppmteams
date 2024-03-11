@@ -1,33 +1,25 @@
 import subprocess
 try:
+    import asyncio, motor, random, string, math, configparser
     from quart import Quart, request, redirect, url_for, session, send_file, websocket, render_template, jsonify
     from quart_cors import route_cors, cors
-    import asyncio
     from urllib.parse import urlparse
-    import motor
     from motor.motor_asyncio import AsyncIOMotorClient
     from pymongo import MongoClient
-    import random
-    import string
     from datetime import datetime
-    import math
     import bson.objectid as objectid
-    import configparser
+    from analytics import analytics as runanalytics
 except:
     subprocess.run(["python3", "-m", "pip", "install", "-r", "requirements.txt"])
+    import asyncio, motor, random, string, math, configparser
     from quart import Quart, request, redirect, url_for, session, send_file, websocket, render_template, jsonify
     from quart_cors import route_cors, cors
-    import asyncio
     from urllib.parse import urlparse
-    import motor
     from motor.motor_asyncio import AsyncIOMotorClient
     from pymongo import MongoClient
-    import random
-    import string
     from datetime import datetime
-    import math
     import bson.objectid as objectid
-    import configparser
+    from analytics import analytics as runanalytics
 
 config = configparser.ConfigParser()
 config.read('config.properties')
@@ -38,6 +30,7 @@ app = cors(app, allow_origin="*")
 app.db = AsyncIOMotorClient(config.get("variables", "mongourl"))[config.get("variables", "database")]
 app.mdb = MongoClient(config.get("variables", "mongourl"))[config.get("variables", "database")]
 app.db.pcollection = app.db["ppms"]
+app.db.acollection = app.db["analytics"]
 app.mdb.pcollection = app.mdb["ppms"]
 
 distances = ["Select a Distance", "2", "3","4","5","6","8"]
@@ -49,7 +42,7 @@ names = ["Select a Runner"] + t1members + t2members + t3members
 
 rawppms = []
 for ppm in app.mdb.pcollection.find({}).sort("ppmdate", -1):
-      rawppms += [ppm["ppmname"]]
+    rawppms += [ppm["ppmname"]]
 ppms = ["Select a PPM"] + rawppms
 
 @app.route('/', methods=["GET"])
@@ -124,7 +117,7 @@ async def home():
     thisrawppms = await getheader(None)
     return await render_template("main.html", oppms=thisrawppms, ppms=thisppms)
 
-@app.route('/<ppm>', methods=["GET"])
+@app.route('/ppm/<ppm>', methods=["GET", "POST"])
 async def homeppm(ppm):
     thisppms = []
     cfound = await app.db.pcollection.find_one({"ppmname":ppm})
@@ -248,6 +241,19 @@ async def submitppm(ppm):
         return await render_template("submit.html", names=thisnames, ppms=[ppm], distances=distances, defaultdistance=defaultdistance, failed="")
     else:
         return redirect(url_for("submit"))
+
+@app.route("/analytics", methods=["POST"])
+async def analytics():
+    if config.get("config", "analytics") == "true":
+        json = await request.get_json()
+        await runanalytics(json, app)
+        return jsonify({"status":"success"})
+    else:
+        return jsonify({"status":"failure"})
+
+@app.route("/js/analytics")
+async def jsanalytics():
+    return await send_file("./templates/static/analytics.js", mimetype="text/javascript")
 
 async def convert(startdistance, enddistance, time):
     if startdistance == enddistance:

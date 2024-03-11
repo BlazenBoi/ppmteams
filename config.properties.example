@@ -1,3 +1,6 @@
 [variables]
 mongourl=
 database=
+
+[config]
+analytics=false

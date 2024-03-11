@@ -18,8 +18,11 @@ Change the ```config.properties.example``` file to ```config.properties```.
 [variables]
 mongourl=
 database=
+
+[config]
+analytics=false
 ```
-Add the variables to the config file.
+Add the variables to the config file. Change config to desired values.
 
 ## Contributing
 

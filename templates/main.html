@@ -49,10 +49,10 @@
                         {%endif%}
                         {%if ppm.ppm != "Show All"%}
                               {%if ppm.active == "true"%}
-                                    <li><a class="active" href="{{ppm.ppm}}">{{ppm.ppm}}</a></li>
+                                    <li><a class="active" href="ppm/{{ppm.ppm}}">{{ppm.ppm}}</a></li>
                               {%endif%}
                               {%if ppm.active == "false"%}
-                                    <li><a class="inactive" href="{{ppm.ppm}}">{{ppm.ppm}}</a></li>
+                                    <li><a class="inactive" href="ppm/{{ppm.ppm}}">{{ppm.ppm}}</a></li>
                               {%endif%}
                         {%endif%}
                   {%endfor%}
@@ -102,5 +102,8 @@
                   <br>
                   <br>
             {%endfor%}
+            <canvas id="myTestCanvas"></canvas>
+            
    </body>
+   <script type="text/javascript" src="js/analytics"></script>
 </html>
