@@ -54,133 +54,133 @@ ppms = ["Select a PPM"] + rawppms
 
 @app.route('/', methods=["GET"])
 async def home():
-      thisppms = []
-      for ppm in await getrawppms(False):
-            cfound = await app.db.pcollection.find_one({"ppmname":ppm})
-            dbppmtimes = cfound["ppmtimes"]
-            ppmtimes = []
-            t1 = {"team":teams[0], "score":0, "runners":0, "allin":"false"}
-            t2 = {"team":teams[1], "score":0, "runners":0, "allin":"false"}
-            t3 = {"team":teams[2], "score":0, "runners":0, "allin":"false"}
-            placement = 0
-            hasbeentied = False
-            tiedadd = 0
-            tiedadd2 = False
-            tiedtime = 0
-            for ppmtime in dbppmtimes:
-                  #if placement == 0 and ppmtime["tied"] == True:
-                        #placement = 1
-                  if ppmtime["tied"] == False:
+    thisppms = []
+    for ppm in await getrawppms(False):
+        cfound = await app.db.pcollection.find_one({"ppmname":ppm})
+        dbppmtimes = cfound["ppmtimes"]
+        ppmtimes = []
+        t1 = {"team":teams[0], "score":0, "runners":0, "allin":"false"}
+        t2 = {"team":teams[1], "score":0, "runners":0, "allin":"false"}
+        t3 = {"team":teams[2], "score":0, "runners":0, "allin":"false"}
+        placement = 0
+        hasbeentied = False
+        tiedadd = 0
+        tiedadd2 = False
+        tiedtime = 0
+        for ppmtime in dbppmtimes:
+            #if placement == 0 and ppmtime["tied"] == True:
+                #placement = 1
+            if ppmtime["tied"] == False:
+                tiedtime = 0
+                if hasbeentied == True:
+                    placement += tiedadd
+                    hasbeentied = False
+                    tiedadd = 0
+                    if tiedadd2 == True:
+                        placement += 1
+                    else:
+                        placement += 1
+                else:
+                    if tiedtime == ppmtime["conversionint"] or tiedtime == 0:
+                        if hasbeentied == False:
+                            placement += 1
+                        tiedtime = ppmtime["conversionint"]
+                        tiedadd += 1
+                        hasbeentied = True
+                    else:
                         tiedtime = 0
                         if hasbeentied == True:
-                              placement += tiedadd
-                              hasbeentied = False
-                              tiedadd = 0
-                              if tiedadd2 == True:
-                                    placement += 1
-                        else:
-                              placement += 1
-                  else:
-                        if tiedtime == ppmtime["conversionint"] or tiedtime == 0:
-                              if hasbeentied == False:
-                                    placement += 1
-                              tiedtime = ppmtime["conversionint"]
-                              tiedadd += 1
-                              hasbeentied = True
-                        else:
-                              tiedtime = 0
-                              if hasbeentied == True:
-                                    placement += tiedadd
-                                    hasbeentied = True
-                                    tiedadd = 0
-                                    tiedadd2 = True
-                  team = None
-                  if ppmtime["name"] in t1members:
-                        team = teams[0]
-                        if t1["runners"] < 5:
-                              t1["score"] += placement
-                              t1["runners"] += 1
-                  if ppmtime["name"] in t2members:
-                        team = teams[1]
-                        if t2["runners"] < 5:
-                              t2["score"] += placement
-                              t2["runners"] += 1
-                  if ppmtime["name"] in t3members:
-                        team = teams[2]
-                        if t3["runners"] < 5:
-                              t3["score"] += placement
-                              t3["runners"] += 1
-                  if t1["runners"] >= 5:
-                        t1["allin"] = "true"
-                  if t2["runners"] >= 5:
-                        t2["allin"] = "true"
-                  if t3["runners"] >= 5:
-                        t3["allin"] = "true"
-                  ppmtimes.append({"place":placement, "name":ppmtime["name"], "team":team, "time":ppmtime["time"], "distance":int(ppmtime["distance"]), "conversionstr":ppmtime["conversionstr"], "conversionint":int(ppmtime["conversionint"]), "converted":ppmtime["converted"], "tied":ppmtime["tied"]})
-            placements = [t1, t2, t3]
-            placements = sorted(placements, key=lambda x: x['runners'], reverse=True)
-            placements = sorted(placements, key=lambda x: x['score'])
-            thisppms.append({"ppm":ppm, "runners":ppmtimes, "placements":placements})
-      thisrawppms = await getheader(None)
-      return await render_template("main.html", oppms=thisrawppms, ppms=thisppms)
+                            placement += tiedadd
+                            hasbeentied = True
+                            tiedadd = 0
+                            tiedadd2 = True
+            team = None
+            if ppmtime["name"] in t1members:
+                team = teams[0]
+                if t1["runners"] < 5:
+                    t1["score"] += placement
+                    t1["runners"] += 1
+            if ppmtime["name"] in t2members:
+                team = teams[1]
+                if t2["runners"] < 5:
+                    t2["score"] += placement
+                    t2["runners"] += 1
+            if ppmtime["name"] in t3members:
+                team = teams[2]
+                if t3["runners"] < 5:
+                    t3["score"] += placement
+                    t3["runners"] += 1
+            if t1["runners"] >= 5:
+                t1["allin"] = "true"
+            if t2["runners"] >= 5:
+                t2["allin"] = "true"
+            if t3["runners"] >= 5:
+                t3["allin"] = "true"
+            ppmtimes.append({"place":placement, "name":ppmtime["name"], "team":team, "time":ppmtime["time"], "distance":int(ppmtime["distance"]), "conversionstr":ppmtime["conversionstr"], "conversionint":int(ppmtime["conversionint"]), "converted":ppmtime["converted"], "tied":ppmtime["tied"]})
+        placements = [t1, t2, t3]
+        placements = sorted(placements, key=lambda x: x['runners'], reverse=True)
+        placements = sorted(placements, key=lambda x: x['score'])
+        thisppms.append({"ppm":ppm, "runners":ppmtimes, "placements":placements})
+    thisrawppms = await getheader(None)
+    return await render_template("main.html", oppms=thisrawppms, ppms=thisppms)
 
 @app.route('/<ppm>', methods=["GET"])
 async def homeppm(ppm):
-            thisppms = []
-            cfound = await app.db.pcollection.find_one({"ppmname":ppm})
-            dbppmtimes = cfound["ppmtimes"]
-            ppmtimes = []
-            t1 = {"team":teams[0], "score":0, "runners":0, "allin":"false"}
-            t2 = {"team":teams[1], "score":0, "runners":0, "allin":"false"}
-            t3 = {"team":teams[2], "score":0, "runners":0, "allin":"false"}
-            placement = 0
-            hasbeentied = False
-            tiedadd = 0
-            for ppmtime in dbppmtimes:
-                  if placement == 0 and ppmtime["tied"] == True:
-                        placement = 1
-                  else:
-                        if ppmtime["tied"] == False:
-                              if hasbeentied == True:
-                                    placement += tiedadd
-                                    hasbeentied = False
-                                    tiedadd = 0
-                              else:
-                                    placement += 1
-                        else:
-                              if hasbeentied == False:
-                                    placement += 1
-                              tiedadd += 1
-                              hasbeentied = True
-                  team = None
-                  if ppmtime["name"] in t1members:
-                        team = teams[0]
-                        if t1["runners"] < 5:
-                              t1["score"] += placement
-                              t1["runners"] += 1
-                        else:
-                              t1["allin"] = "true"
-                  if ppmtime["name"] in t2members:
-                        team = teams[1]
-                        if t2["runners"] < 5:
-                              t2["score"] += placement
-                              t2["runners"] += 1
-                        else:
-                              t2["allin"] = "true"
-                  if ppmtime["name"] in t3members:
-                        team = teams[2]
-                        if t3["runners"] < 5:
-                              t3["score"] += placement
-                              t3["runners"] += 1
-                        else:
-                              t3["allin"] = "true"
-                  ppmtimes.append({"place":placement, "name":ppmtime["name"], "team":team, "time":ppmtime["time"], "distance":int(ppmtime["distance"]), "conversionstr":ppmtime["conversionstr"], "conversionint":int(ppmtime["conversionint"]), "converted":ppmtime["converted"], "tied":ppmtime["tied"]})
-            placements = [t1, t2, t3]
-            placements = sorted(placements, key=lambda x: x['runners'], reverse=True)
-            placements = sorted(placements, key=lambda x: x['score'])
-            thisppms.append({"ppm":ppm, "runners":ppmtimes, "placements":placements})
-            thisrawppms = await getheader(ppm)
-            return await render_template("main.html", oppms=thisrawppms, ppms=thisppms)
+    thisppms = []
+    cfound = await app.db.pcollection.find_one({"ppmname":ppm})
+    dbppmtimes = cfound["ppmtimes"]
+    ppmtimes = []
+    t1 = {"team":teams[0], "score":0, "runners":0, "allin":"false"}
+    t2 = {"team":teams[1], "score":0, "runners":0, "allin":"false"}
+    t3 = {"team":teams[2], "score":0, "runners":0, "allin":"false"}
+    placement = 0
+    hasbeentied = False
+    tiedadd = 0
+    for ppmtime in dbppmtimes:
+        if placement == 0 and ppmtime["tied"] == True:
+            placement = 1
+        else:
+            if ppmtime["tied"] == False:
+                if hasbeentied == True:
+                    placement += tiedadd
+                    hasbeentied = False
+                    tiedadd = 0
+                else:
+                    placement += 1
+            else:
+                if hasbeentied == False:
+                    placement += 1
+                tiedadd += 1
+                hasbeentied = True
+                team = None
+                if ppmtime["name"] in t1members:
+                    team = teams[0]
+                    if t1["runners"] < 5:
+                        t1["score"] += placement
+                        t1["runners"] += 1
+                    else:
+                        t1["allin"] = "true"
+                if ppmtime["name"] in t2members:
+                    team = teams[1]
+                    if t2["runners"] < 5:
+                        t2["score"] += placement
+                        t2["runners"] += 1
+                    else:
+                        t2["allin"] = "true"
+                if ppmtime["name"] in t3members:
+                    team = teams[2]
+                    if t3["runners"] < 5:
+                        t3["score"] += placement
+                        t3["runners"] += 1
+                    else:
+                        t3["allin"] = "true"
+                ppmtimes.append({"place":placement, "name":ppmtime["name"], "team":team, "time":ppmtime["time"], "distance":int(ppmtime["distance"]), "conversionstr":ppmtime["conversionstr"], "conversionint":int(ppmtime["conversionint"]), "converted":ppmtime["converted"], "tied":ppmtime["tied"]})
+        placements = [t1, t2, t3]
+        placements = sorted(placements, key=lambda x: x['runners'], reverse=True)
+        placements = sorted(placements, key=lambda x: x['score'])
+        thisppms.append({"ppm":ppm, "runners":ppmtimes, "placements":placements})
+        thisrawppms = await getheader(ppm)
+        return await render_template("main.html", oppms=thisrawppms, ppms=thisppms)
 
 @app.route("/totals")
 async def totals():
