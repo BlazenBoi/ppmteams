@@ -4,7 +4,7 @@ A website I designed to track ppm teams for my cross-country team.
 
 ## Installation
 
-Use the package manager [pip](https://pip.pypa.io/en/stable/) to install foobar.
+Use the package manager [pip](https://pip.pypa.io/en/stable/) to install packages.
 
 ```bash
 pip install -r requirements.txt
