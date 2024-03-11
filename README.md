@@ -10,7 +10,7 @@ Use the package manager [pip](https://pip.pypa.io/en/stable/) to install package
 pip install -r requirements.txt
 ```
 
-## Setup
+## Configuration
 
 Change the ```config.properties.example``` file to ```config.properties```.
 
