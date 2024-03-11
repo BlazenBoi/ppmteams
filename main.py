@@ -184,7 +184,7 @@ async def homeppm(ppm):
 
 @app.route("/totals")
 async def totals():
-      return None
+    return None
 
 @app.route("/newppm", methods=["GET", "POST"])
 async def newppm():
@@ -202,116 +202,116 @@ async def newppm():
 
 @app.route('/submit', methods=["GET", "POST"])
 async def submit():
-      if request.method == "GET":
-            return await render_template("submit.html", names=names, ppms=await getrawppms(True), distances=distances, failed="")
-      else:
-            collection = app.db["ppmteams"]
-            form = await request.form
-            conversion = None
-            convertdistance = int(form["distance"])
-            if "LPPM" in form["ppm"]:
-                convertdistance = 8
-            elif "SPPM" in form["ppm"]:
-                convertdistance = 4
-            conversion = await convert(int(form["distance"]), convertdistance, form["time"])
-            conversionint = conversion[0]
-            conversionstr = conversion[1]
-            converted = conversion[2]
-            if converted == True:
-                  conversionstr += "*"
-            cfound = await app.db.pcollection.find_one({"ppmname":form["ppm"]})
-            dbppmtimes = cfound["ppmtimes"]
-            ppmtimes = []
-            for ppmtime in dbppmtimes:
-                  ppmtimes.append({"name":ppmtime["name"], "time":ppmtime["time"], "distance":int(ppmtime["distance"]), "conversionstr":ppmtime["conversionstr"], "conversionint":int(ppmtime["conversionint"]), "converted":ppmtime["converted"], "tied":ppmtime["tied"]})
-            ppmtimes.append({"name":form["fname"], "time":form["time"], "distance":int(form["distance"]), "conversionstr":conversionstr, "conversionint":int(conversionint), "converted":converted, "tied":False})
-            scores = cfound["scores"]
-            ppmtimes = sorted(ppmtimes, key=lambda x: x['distance'], reverse=True)
-            ppmtimes = sorted(ppmtimes, key=lambda x: x['conversionint'])
-            await app.db.pcollection.update_one({"ppmname":form["ppm"]}, {"$set":{"ppmtimes":ppmtimes, "scores":scores}})
-            #await collection.insert_one({"ppm":form["ppm"], "name":form["fname"], "time":form["time"], "distance":form["distance"], "conversionstr":conversionstr, "conversionint":conversionint, "converted":converted})
-            return redirect(url_for("submit") + "/" + form["ppm"])
+    if request.method == "GET":
+        return await render_template("submit.html", names=names, ppms=await getrawppms(True), distances=distances, failed="")
+    else:
+        collection = app.db["ppmteams"]
+        form = await request.form
+        conversion = None
+        convertdistance = int(form["distance"])
+        if "LPPM" in form["ppm"]:
+            convertdistance = 8
+        elif "SPPM" in form["ppm"]:
+            convertdistance = 4
+        conversion = await convert(int(form["distance"]), convertdistance, form["time"])
+        conversionint = conversion[0]
+        conversionstr = conversion[1]
+        converted = conversion[2]
+        if converted == True:
+            conversionstr += "*"
+        cfound = await app.db.pcollection.find_one({"ppmname":form["ppm"]})
+        dbppmtimes = cfound["ppmtimes"]
+        ppmtimes = []
+        for ppmtime in dbppmtimes:
+            ppmtimes.append({"name":ppmtime["name"], "time":ppmtime["time"], "distance":int(ppmtime["distance"]), "conversionstr":ppmtime["conversionstr"], "conversionint":int(ppmtime["conversionint"]), "converted":ppmtime["converted"], "tied":ppmtime["tied"]})
+        ppmtimes.append({"name":form["fname"], "time":form["time"], "distance":int(form["distance"]), "conversionstr":conversionstr, "conversionint":int(conversionint), "converted":converted, "tied":False})
+        scores = cfound["scores"]
+        ppmtimes = sorted(ppmtimes, key=lambda x: x['distance'], reverse=True)
+        ppmtimes = sorted(ppmtimes, key=lambda x: x['conversionint'])
+        await app.db.pcollection.update_one({"ppmname":form["ppm"]}, {"$set":{"ppmtimes":ppmtimes, "scores":scores}})
+        #await collection.insert_one({"ppm":form["ppm"], "name":form["fname"], "time":form["time"], "distance":form["distance"], "conversionstr":conversionstr, "conversionint":conversionint, "converted":converted})
+        return redirect(url_for("submit") + "/" + form["ppm"])
 
 @app.route('/submit/<ppm>', methods=["GET", "POST"])
 async def submitppm(ppm):
-      if request.method == "GET":
-            defaultdistance = None
-            if "LPPM" in ppm:
-                defaultdistance = "6"
-            elif "SPPM" in ppm:
-                defaultdistance = "4"
-            thisnames = names.copy()
-            cfound = await app.db.pcollection.find_one({"ppmname":ppm})
-            dbppmtimes = cfound["ppmtimes"]
-            for name in dbppmtimes:
-                  thisnames.remove(name["name"])
-            return await render_template("submit.html", names=thisnames, ppms=[ppm], distances=distances, defaultdistance=defaultdistance, failed="")
-      else:
-            return redirect(url_for("submit"))
+    if request.method == "GET":
+        defaultdistance = None
+        if "LPPM" in ppm:
+            defaultdistance = "6"
+        elif "SPPM" in ppm:
+            defaultdistance = "4"
+        thisnames = names.copy()
+        cfound = await app.db.pcollection.find_one({"ppmname":ppm})
+        dbppmtimes = cfound["ppmtimes"]
+        for name in dbppmtimes:
+            thisnames.remove(name["name"])
+        return await render_template("submit.html", names=thisnames, ppms=[ppm], distances=distances, defaultdistance=defaultdistance, failed="")
+    else:
+        return redirect(url_for("submit"))
 
 async def convert(startdistance, enddistance, time):
-      if startdistance == enddistance:
-            splittime = time.split(":")
-            seconds = int(splittime[0])*60 + int(splittime[1])
-            return [seconds, time, False]
-      splittime = time.split(":")
-      seconds = int(splittime[0])*60 + int(splittime[1])
-      if enddistance == 4:
-            if startdistance == 2:
-                  seconds = (seconds * (enddistance/startdistance)) + 180
-            if startdistance == 3:
-                  seconds = (seconds * (enddistance/startdistance)) + 20
-            fminutes = math.floor(seconds/60)
-            fseconds = round(seconds - (fminutes * 60))
-            if fseconds < 10:
-                  ftime = str(fminutes) + ":0" + str(fseconds)
-            else:
-                  ftime = str(fminutes) + ":" + str(fseconds)
-      elif enddistance == 8:
-            if startdistance == 2:
-                  seconds = (seconds * (enddistance/startdistance)) + 360
-            if startdistance == 3:
-                  seconds = (seconds * (enddistance/startdistance)) + 180
-            elif startdistance == 4:
-                  seconds = (seconds * (enddistance/startdistance)) + 120
-            elif startdistance == 5:
-                  seconds = (seconds * (enddistance/startdistance)) + 80
-            elif startdistance == 6:
-                  seconds = (seconds * (enddistance/startdistance)) + 40
-            fminutes = math.floor(seconds/60)
-            fseconds = round(seconds - (fminutes * 60))
-            if fseconds < 10:
-                  ftime = str(fminutes) + ":0" + str(fseconds)
-            else:
-                  ftime = str(fminutes) + ":" + str(fseconds)
-      return [seconds, ftime, True]
+    if startdistance == enddistance:
+        splittime = time.split(":")
+        seconds = int(splittime[0])*60 + int(splittime[1])
+        return [seconds, time, False]
+    splittime = time.split(":")
+    seconds = int(splittime[0])*60 + int(splittime[1])
+    if enddistance == 4:
+        if startdistance == 2:
+            seconds = (seconds * (enddistance/startdistance)) + 180
+        if startdistance == 3:
+            seconds = (seconds * (enddistance/startdistance)) + 20
+        fminutes = math.floor(seconds/60)
+        fseconds = round(seconds - (fminutes * 60))
+        if fseconds < 10:
+            ftime = str(fminutes) + ":0" + str(fseconds)
+        else:
+            ftime = str(fminutes) + ":" + str(fseconds)
+    elif enddistance == 8:
+        if startdistance == 2:
+            seconds = (seconds * (enddistance/startdistance)) + 360
+        if startdistance == 3:
+            seconds = (seconds * (enddistance/startdistance)) + 180
+        elif startdistance == 4:
+            seconds = (seconds * (enddistance/startdistance)) + 120
+        elif startdistance == 5:
+            seconds = (seconds * (enddistance/startdistance)) + 80
+        elif startdistance == 6:
+            seconds = (seconds * (enddistance/startdistance)) + 40
+        fminutes = math.floor(seconds/60)
+        fseconds = round(seconds - (fminutes * 60))
+        if fseconds < 10:
+            ftime = str(fminutes) + ":0" + str(fseconds)
+        else:
+            ftime = str(fminutes) + ":" + str(fseconds)
+    return [seconds, ftime, True]
 
 async def getrawppms(add):
-      thisraw = ["Select a PPM"]
-      thisraw2 = []
-      for ppm in await app.db.pcollection.find({}).sort("ppmdate", -1).to_list(None):
-            thisraw += [ppm["ppmname"]]
-            thisraw2 += [ppm["ppmname"]]
-      if add == True:
-            return thisraw
-      elif add == False:
-            return thisraw2
+    thisraw = ["Select a PPM"]
+    thisraw2 = []
+    for ppm in await app.db.pcollection.find({}).sort("ppmdate", -1).to_list(None):
+        thisraw += [ppm["ppmname"]]
+        thisraw2 += [ppm["ppmname"]]
+    if add == True:
+        return thisraw
+    elif add == False:
+        return thisraw2
 
 async def getheader(active):
-      thisraw = []
-      for ppm in await app.db.pcollection.find({}).sort("ppmdate", -1).to_list(None):
-            if datetime.now() > ppm["ppmdate"]:
-                  thisraw += [ppm["ppmname"]]
-      thisrawppms = []
-      if active == None:
-            thisrawppms.append({"ppm":"Show All", "active":"true"})
-            for tppm in thisraw:
-                  thisrawppms.append({"ppm":tppm, "active":"false"})
-      else:
-            thisrawppms.append({"ppm":"Show All", "active":"false"})
-            for tppm in thisraw:
-                  if tppm == active:
-                        thisrawppms.append({"ppm":tppm, "active":"true"})
-                  else:
-                        thisrawppms.append({"ppm":tppm, "active":"false"})
-      return thisrawppms
+    thisraw = []
+    for ppm in await app.db.pcollection.find({}).sort("ppmdate", -1).to_list(None):
+        if datetime.now() > ppm["ppmdate"]:
+            thisraw += [ppm["ppmname"]]
+    thisrawppms = []
+    if active == None:
+        thisrawppms.append({"ppm":"Show All", "active":"true"})
+        for tppm in thisraw:
+            thisrawppms.append({"ppm":tppm, "active":"false"})
+    else:
+        thisrawppms.append({"ppm":"Show All", "active":"false"})
+        for tppm in thisraw:
+            if tppm == active:
+                thisrawppms.append({"ppm":tppm, "active":"true"})
+            else:
+                thisrawppms.append({"ppm":tppm, "active":"false"})
+    return thisrawppms
