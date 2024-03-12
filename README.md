@@ -1,4 +1,4 @@
-# Setup
+# PPMTeams
 
 A website I designed to track ppm teams for my cross-country team.
 
@@ -23,6 +23,10 @@ database=
 analytics=false
 ```
 Add the variables to the config file. Change config to desired values.
+
+## Startup
+
+Run the command ```hypercorn main:app``` to run the website. If you want to run it on a specific host and port add ```-b="{host}:{port}``` to the end of the command.
 
 ## Contributing
 
